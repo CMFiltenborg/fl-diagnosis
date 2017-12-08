@@ -1,0 +1,49 @@
+import math
+import numpy as np
+from collections import defaultdict, Counter
+
+class TriangularMF:
+    def __init__(self, name, start, top, end):
+        self.name = name
+        self.start = start
+        self.top = top
+        self.end = end
+
+    def calculate_membership(self, x):
+        start = self.start
+        top = self.top
+        end = self.end
+        if start <= x <= top:
+            membership_value = (x - start) /(top - start)
+        elif top < x <= end:
+            membership_value = (end - x) /(end - top)
+        else: 
+            membership_value = 0
+        return membership_value
+        
+class Variable:
+    def __init__(self, name, range, mfs):
+        self.name = name
+        self.range = range
+        self.mfs = mfs
+
+    def calculate_memberships(self, x):
+        return {
+            mf.name : mf.calculate_membership(x)
+            for mf in self.mfs
+        }
+
+    def get_mf_by_name(self, name):
+        for mf in self.mfs:
+            if mf.name == name:
+                return mf
+
+class Input(Variable):
+    def __init__(self, name, range, mfs):
+        super().__init__(name, range, mfs)
+        self.type = "input"
+
+class Output(Variable):
+    def __init__(self, name, range, mfs):
+        super().__init__(name, range, mfs)
+        self.type = "output"
