@@ -20,15 +20,15 @@ def get_variables(df):
     y = df[y_column].as_matrix()
     df = df.drop(y_column, 1)
 
-    y_variable = Variable('output', y.max() - y.min(), all_mfs(y, 5))
-    x_vars = []
+    output = Output('output', y.max() - y.min(), all_mfs(y, 5))
+    input_vars = []
     for column_name in df:
         feature = df[column_name].as_matrix()
-        x_variable = Variable(column_name, feature.max() - feature.min(), all_mfs(feature, 5))
+        x_variable = Input(column_name, feature.max() - feature.min(), all_mfs(feature, 5))
 
-        x_vars.append(x_variable)
+        input_vars.append(x_variable)
 
-    return x_vars, y_variable
+    return input_vars, output
 
 
 def make_membership(feature_vec, n):
