@@ -74,11 +74,11 @@ class Output(Variable):
         super().__init__(name, range, mfs)
         self.type = "output"
 
-#rule1 = Rule(1, ["low", "amazing"], "and", "low")
 
 class Rule:
     """Fuzzy rule class, initialized with an antecedent (list of strings),
-    operator (string) and consequent (string)."""
+    operator (string) and consequent (string).
+    vb.: rule1 = Rule(1, ["low", "amazing"], "and", "low")"""
     def __init__(self, n, antecedent, operator, consequent):
         self.number = n
         self.antecedent = antecedent
@@ -94,7 +94,6 @@ class Rule:
         self.firing_strength = min(res)
 
         return self.firing_strength
-
 
 
 class Rulebase:
