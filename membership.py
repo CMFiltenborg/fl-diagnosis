@@ -4,12 +4,6 @@ from dataset import get_clean_data
 from fuzzy_functions import *
 
 
-def all_mfs(data, n=5):
-    if data.ndim == 1:
-        return make_membership(data, n)
-
-    return [make_membership(data[:, i], n) for i in range(data.shape[1])]
-
 
 def get_variables(df):
     """
@@ -20,18 +14,19 @@ def get_variables(df):
     y = df[y_column].as_matrix()
     df = df.drop(y_column, 1)
 
-    output = Output('output', y.max() - y.min(), all_mfs(y, 5))
+    output = Output('output', y.max() - y.min(), make_membership_functions(y_column, y, 5))
     input_vars = []
     for column_name in df:
         feature = df[column_name].as_matrix()
-        x_variable = Input(column_name, feature.max() - feature.min(), all_mfs(feature, 5))
+        membership_functions = make_membership_functions(column_name, feature, 5)
+        x_variable = Input(column_name, feature.max() - feature.min(), membership_functions)
 
         input_vars.append(x_variable)
 
     return input_vars, output
 
 
-def make_membership(feature_vec, n):
+def make_membership_functions(feature_name, feature_vec, n):
     """
     :param feature_vec: vector of values for one feature
     :param n: number of memberships for the feature
@@ -51,7 +46,7 @@ def make_membership(feature_vec, n):
     membership_functions = []
     # Create n membership functions
     for i in range(n):
-        name = determine_mf_name(i, mid_mf)
+        name = determine_mf_name(feature_name, i, mid_mf)
         mf = TriangularMF(name, start, top, end)
         membership_functions.append(mf)
 
@@ -66,14 +61,14 @@ def make_membership(feature_vec, n):
     return membership_functions
 
 
-def determine_mf_name(i, mid_mf):
+def determine_mf_name(feature_name, i, mid_mf):
     name = ''
     if i + 1 < mid_mf:
-        name = 'Small {}'.format(i + 1)
+        name = '{}: Small {}'.format(feature_name, i + 1)
     if i + 1 == mid_mf:
-        name = 'CE'
+        name = '{}: CE'.format(feature_name)
     if i + 1 > mid_mf:
-        name = 'Big {}'.format(i + 1)
+        name = '{}: Big {}'.format(feature_name, i + 1)
 
     return name
 
