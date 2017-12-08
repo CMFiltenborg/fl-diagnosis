@@ -3,7 +3,7 @@ from collections import Counter
 
 
 def load_data(datafile):
-    return np.loadtxt(datafile, dtype=np.str, delimiter=',')
+    return np.genfromtxt(datafile, dtype=np.str, delimiter=',')
 
 
 def count_missing(data):
@@ -47,4 +47,5 @@ def get_clean_data():
     data_h = load_data("processed.hungarian.data")
     data_s = load_data("processed.switzerland.data")
     data = np.concatenate((data_c, data_h, data_s, data_v), axis=0)
-    return remove_missing(data)
+    data = remove_missing(data)
+    return data.astype(np.float64)
