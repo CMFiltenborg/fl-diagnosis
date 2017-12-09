@@ -112,7 +112,7 @@ class Rulebase:
         self.rules = rules
 
     def __str__(self):
-        return '\n'.join(['Rule {}: {} {} {}'.format(r.number, ', '.join(r.antecedent), r.operator, r.consequent) for r in self.rules])
+        return '\n'.join(['Rule {}: [{}] {} {}'.format(r.number, ', '.join(r.antecedent), r.operator, r.consequent) for r in self.rules])
 
     def calculate_firing_strengths(self, datapoint, inputs):
         result = Counter()

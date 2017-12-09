@@ -52,31 +52,24 @@ def generate_rules(df, input_variables, output_variable):
 
         # Create a key for the antecedent so we do not
         # have to do a lookup of ALL the rules created so far if there is a rule 'conflict'
-        # Same goes for the consequent
         antecedent_key = '-'.join(antecedent)
-        consequent_key = '-'.join(consequent)
+        # Degree is the multiplied degree of all mf's
         degree = functools.reduce(multiply, list(antecedent.values()) + list(consequent.values()), 1)
         new_rule = Rule(rule_n, list(antecedent.keys()), "and", list(consequent.keys()))
 
-        matched = True
-        if antecedent_key in rules and consequent_key in rules[antecedent_key]:
-            matched = True
-            _, current_degree = rules[antecedent_key][consequent_key]
-            if degree > current_degree:
-                rules[antecedent_key][consequent_key] = (new_rule, degree)
-
-        if not matched:
-            rules[antecedent_key][consequent_key] = (new_rule, degree)
+        if antecedent_key in rules:
+            current_rule, current_degree = rules[antecedent_key]
+            if current_rule.consequent != new_rule.consequent and degree > current_degree:
+                rules[antecedent_key] = (new_rule, degree)
         else:
-            rules[antecedent_key] = {consequent_key: (new_rule, degree)}
+            rules[antecedent_key] = (new_rule, degree)
 
         rule_n += 1
 
     # Unpack the dictionary into the resulting rules
     unpacked_rules = []
     for i in rules:
-        for j in rules[i]:
-            unpacked_rules.append(rules[i][j][0])
+        unpacked_rules.append(rules[i][0])
 
     print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
 
