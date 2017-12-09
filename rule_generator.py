@@ -24,8 +24,8 @@ def generate_rules(df, input_variables, output_variable):
     data = df.as_matrix()
     columns_cnt = data.shape[1]
 
-    # dict of keys of antecedent with the value as arrays of rules
-    # each array contains the rules with the same antecedent
+    # dict where the key is the antecedent and
+    # the value is a tuple of the (rule, degree)
     rules = {}
     rule_n = 1
 
