@@ -74,8 +74,7 @@ def generate_rules(df, input_variables, output_variable):
     print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
 
     return Rulebase(unpacked_rules)
-
-
+ 
 def multiply(x,y):
     return x * y
 
@@ -108,7 +107,7 @@ if __name__ == '__main__':
     input_variables, output_var = get_variables(data)
     rulebase = generate_rules(data, input_variables, output_var)
 
-    # print(rulebase)
+    #print(rulebase)
     # print(data.head())
     # get_variables(data)
     # print(data.shape)
