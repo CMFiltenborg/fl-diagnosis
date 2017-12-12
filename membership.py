@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-from dataset import get_clean_data
+import math
+from dataset import *
 from fuzzy_functions import *
+from rule_generator import *
 
 
 
@@ -14,12 +16,12 @@ def get_variables(df):
     y = df[y_column].as_matrix()
     df = df.drop(y_column, 1)
 
-    output = Output('output', y.max() - y.min(), make_membership_functions(y_column, y, 5))
+    output = Output('output', (y.min(),y.max()), make_membership_functions(y_column, y, 5))
     input_vars = []
     for column_name in df:
         feature = df[column_name].as_matrix()
         membership_functions = make_membership_functions(column_name, feature, 5)
-        x_variable = Input(column_name, feature.max() - feature.min(), membership_functions)
+        x_variable = Input(column_name, (feature.min(), feature.max()), membership_functions)
 
         input_vars.append(x_variable)
 
@@ -72,6 +74,21 @@ def determine_mf_name(feature_name, i, mid_mf):
 
     return name
 
+def validate_sys(reasoner, test_data, thresh, N):
+    total = 0
+    for j in range(N):
+        test_x, test_y = x_y_split(test_data)
+        corr = 0
+        for i, x in enumerate(test_x):
+            r = reasoner.inference(x)
+            # if r <= 1:
+            if abs(test_y[i] - r) < thresh:
+                corr += 1
+        total += corr / len(test_data)
+    return total/N *100
+
+
+
 
 if __name__ == '__main__':
     data = get_clean_data()
@@ -92,10 +109,19 @@ if __name__ == '__main__':
         '14. #58 (num)',
     ]
 
-    data = pd.DataFrame(data, columns=columns)
-    print(data.head())
-    get_variables(data)
-    print(data.shape)
+    ratio = 0.7
+    train, test = validation_split(data, ratio)
+
+    df = pd.DataFrame(train, columns=columns)
+    # print(df.head())
+    inputs , output = get_variables(df)     # get input and output variables and their memebership functions
+    rulebase = generate_rules(df, inputs, output)       # generate rules
+    thinker = Reasoner(rulebase, inputs, output, 200)   # make a Reasoner object to initialize the whole system.
+    # datapoint = [100, 1]
+    # print(round(thinker.inference(datapoint)))
+    # print(df.shape)
+    print(validate_sys(thinker, test, 0.5, 10))
+
 
     # column = data[:,0]
     # mfs = make_membership(column, 3)

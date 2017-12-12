@@ -69,16 +69,19 @@ class Variable:
             if mf.name == name:
                 return mf
 
+    def get_variable_name(self):
+        return self.name
+
 
 class Input(Variable):
     def __init__(self, name, range, mfs):
-        super().__init__(name, range, mfs)
+        super(Input, self).__init__(name, range, mfs)
         self.type = "input"
 
 
 class Output(Variable):
     def __init__(self, name, range, mfs):
-        super().__init__(name, range, mfs)
+        super(Output, self).__init__(name, range, mfs)
         self.type = "output"
 
 
@@ -96,11 +99,32 @@ class Rule:
 
     def calculate_firing_strength(self, datapoint, inputs):
         res = []
-        for i in range(len(inputs)):
-            res_dict = inputs[i].calculate_memberships(datapoint[i])
-            res.append(res_dict[self.antecedent[i]])
-        self.firing_strength = min(res)
-
+        columns = [
+            '1. #3 (age)',
+            '2. #4 (sex)',
+            '3. #9 (cp)',
+            '4. #10 (trestbps)',
+            '5. #12 (chol)',
+            '6. #16 (fbs)',
+            '7. #19 (restecg)',
+            '8. #32 (thalach)',
+            '9. #38 (exang)',
+            '10. #40 (oldpeak)',
+            '11. #41 (slope)',
+            '12. #44 (ca)',
+            '13. #51 (thal)'
+            # '14. #58 (num)',
+        ]
+        # print()
+        for x in self.antecedent:
+            for i, c in enumerate(columns):
+                if c in x:
+                    res_dict = inputs[i].calculate_memberships(datapoint[i])
+                    res.append(res_dict[x])
+            # res.append(res_dict)
+        print(res)
+        self.firing_strength = max(res)
+        # print(self.firing_strength)
         return self.firing_strength
 
 
@@ -118,7 +142,61 @@ class Rulebase:
         result = Counter()
         for i, rule in enumerate(self.rules):
             fs = rule.calculate_firing_strength(datapoint, inputs)
-            consequent = rule.consequent
+            consequent = rule.consequent[0]
             if fs > result[consequent]:
                 result[consequent] = fs
         return result
+
+
+
+''' vb. call:
+thinker = Reasoner(rulebase, inputs, output, 201)
+datapoint = [100, 1]
+print(round(thinker.inference(datapoint)))
+'''
+class Reasoner:
+    def __init__(self, rulebase, inputs, output, n_points):
+        self.rulebase = rulebase
+        self.inputs = inputs
+        self.output = output
+        self.discretize = n_points
+
+    def inference(self, datapoint):
+        # 1. Calculate the highest firing strength found in the rules per
+        # membership function of the output variable
+        # looks like: {"low":0.5, "medium":0.25, "high":0}
+        firing_strengths = self.rulebase.calculate_firing_strengths(datapoint, self.inputs)
+        # 2. Aggragate and discretize
+        # looks like: [(0.0, 1), (1.2437810945273631, 1), (2.4875621890547261, 1), (3.7313432835820892, 1), ...]
+        input_value_pairs = self.aggregate(firing_strengths)
+        # 3. Defuzzify
+        # looks like a scalar
+        crisp_output = self.defuzzify(input_value_pairs)
+        return crisp_output
+
+    def aggregate(self, firing_strengths):
+        # First find where the aggrageted area starts and ends
+        mfs = []
+        for key in firing_strengths:
+            mf = self.output.get_mf_by_name(key)
+            mfs.append((mf, firing_strengths[key]))
+        res = []
+        for x in np.linspace(0,4,self.discretize):
+            mx = 0
+            for (mf, fs) in mfs:
+                tmp = mf.calculate_membership(x)
+                if tmp > fs:
+                    tmp = fs
+                if tmp > mx:
+                    mx = tmp
+                    res.append((x,mx))
+        return res
+
+    def defuzzify(self, input_value_pairs):
+        s1 = 0
+        s2 = 0
+        print(input_value_pairs)
+        for (x,fs) in input_value_pairs:
+            s1 += x*fs
+            s2 += fs
+        return s1/s2

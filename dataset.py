@@ -1,6 +1,6 @@
 import numpy as np
 from collections import Counter
-
+import math
 
 def load_data(datafile):
     return np.genfromtxt(datafile, dtype=np.str, delimiter=',')
@@ -43,17 +43,20 @@ def count_occurence(data_column):
 
 
 def validation_split(data, ratio):
-    return data[0:math.floor(len(data)*ratio)], data[math.floor(len(data)*ratio):len(data)]
+    np.random.shuffle(data)
+    tmp = int(math.floor(len(data)*ratio))
+    # print(tmp)
+    return data[0:tmp], data[tmp:len(data)]
 
 
 def x_y_split(data):
     res = []
-    for i in range(len(data)):
-        if data[i][len(data[0])-1] == '0':
-            res.append(False)
-        else:
-            res.append(True)
-    return data[:,0:len(data[0])-1], np.array(res)
+    # for i in range(len(data)):
+    #     if data[i][len(data[0])-1] == '0':
+    #         res.append(False)
+    #     else:
+    #         res.append(True)
+    return data[:,0:len(data[0])-1], data[:,len(data[0])-1]#np.array(res)
 
 
 def disc_num_split(data, thres=20):
