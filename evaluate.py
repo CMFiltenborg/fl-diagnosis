@@ -1,6 +1,7 @@
 import numpy as np
 from dataset import *
 from rule_generator import *
+from membership import *
 
 def validate_sys(reasoner, test_data, thresh):
     test_x, test_y = x_y_split(test_data)
@@ -55,11 +56,8 @@ if __name__ == '__main__':
     train, test = validation_split(data, ratio)
 
     df = pd.DataFrame(train, columns=columns)
-    # print(df.head())
     inputs, output = get_variables(df)  # get input and output variables and their memebership functions
+    # plot_mfs([output])
     rulebase = generate_rules(df, inputs, output)  # generate rules
     thinker = Reasoner(rulebase, inputs, output, 200)  # make a Reasoner object to initialize the whole system.
-    # datapoint = [100, 1]
-    # print(round(thinker.inference(datapoint)))
-    # print(df.shape)
     print(validate_sys(thinker, test, 0.5))
