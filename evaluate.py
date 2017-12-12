@@ -2,6 +2,7 @@ import numpy as np
 from dataset import *
 from rule_generator import *
 
+
 def validate_sys(reasoner, test_data, thresh):
     test_x, test_y = x_y_split(test_data)
     correct = 0
@@ -27,13 +28,16 @@ def validate_sys(reasoner, test_data, thresh):
 
     print(result, result.shape)
     print(confusion_matrix)
+    print('{} total test examples'.format(len(test_data)))
     print('Had {} test examples that could not be classified by the rules'.format(non_classified))
     print('Percentage correct: {}%'.format(percentage_correct))
 
     return percentage_correct
 
+
 if __name__ == '__main__':
     data = get_clean_data()
+    print(data.shape)
     columns = [
         '1. #3 (age)',
         '2. #4 (sex)',
@@ -51,7 +55,7 @@ if __name__ == '__main__':
         '14. #58 (num)',
     ]
 
-    ratio = 0.7
+    ratio = 0.8
     train, test = validation_split(data, ratio)
 
     df = pd.DataFrame(train, columns=columns)
