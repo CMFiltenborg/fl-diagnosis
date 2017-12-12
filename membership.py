@@ -74,17 +74,18 @@ def determine_mf_name(feature_name, i, mid_mf):
 
     return name
 
-def validate_sys(reasoner, test_data, thresh, N):
+def validate_sys(reasoner, data, thresh, N, ratio):
     total = 0
     for j in range(N):
-        test_x, test_y = x_y_split(test_data)
         corr = 0
+        train, test = validation_split(data, ratio)
+        test_x, test_y = x_y_split(test)
         for i, x in enumerate(test_x):
             r = reasoner.inference(x)
             # if r <= 1:
             if abs(test_y[i] - r) < thresh:
                 corr += 1
-        total += corr / len(test_data)
+        total += corr / len(data)
     return total/N *100
 
 
@@ -110,9 +111,8 @@ if __name__ == '__main__':
     ]
 
     ratio = 0.7
-    train, test = validation_split(data, ratio)
 
-    df = pd.DataFrame(train, columns=columns)
+    df = pd.DataFrame(data, columns=columns)
     # print(df.head())
     inputs , output = get_variables(df)     # get input and output variables and their memebership functions
     rulebase = generate_rules(df, inputs, output)       # generate rules
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # datapoint = [100, 1]
     # print(round(thinker.inference(datapoint)))
     # print(df.shape)
-    print(validate_sys(thinker, test, 0.5, 10))
+    print(validate_sys(thinker, data, 0.1, 10, 0.7))
 
 
     # column = data[:,0]
