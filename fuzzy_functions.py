@@ -104,28 +104,19 @@ class Rule:
     def calculate_firing_strength(self, datapoint, inputs):
         firing_strength = 0
         if self.operator == 'PROBOR':
-            applicable_memberships = []
-            for i in range(len(inputs)):
-                memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
-                applicable_memberships.append(memberships_for_variable[self.antecedent[i]])
+            operator_function = lambda x: functools.reduce(self.probor, x) if len(x) > 1 else 0
+        if self.operator == 'AND':
+            operator_function = lambda x: min(x)
+        if self.operator == 'OR':
+            operator_function = lambda x: max(x)
 
-            firing_strength = functools.reduce(self.probor, applicable_memberships)
+        applicable_memberships = []
+        for i in range(len(inputs)):
+            memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
+            applicable_memberships.append(memberships_for_variable[self.antecedent[i]])
 
-        if self.operator == 'AND' or self.operator == 'OR':
-            applicable_memberships = []
-            # For every variable we calculate the memberships
-            # to its rules,
-            for i in range(len(inputs)):
-                memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
-                mf = self.antecedent[i]
-                if mf in memberships_for_variable:
-                    applicable_memberships.append(memberships_for_variable[mf])
-
-            if len(applicable_memberships) > 0 and self.operator == 'AND':
-                firing_strength = min(applicable_memberships)
-
-            if len(applicable_memberships) > 0 and self.operator == 'OR':
-                firing_strength = max(applicable_memberships)
+        if len(applicable_memberships) > 0:
+            firing_strength = operator_function(applicable_memberships)
 
         self.firing_strength = firing_strength
         return firing_strength
