@@ -7,9 +7,6 @@ from fuzzy_functions import *
 import pandas as pd
 from membership import get_variables
 
-dataset = get_clean_data()
-print(dataset)
-
 
 def generate_rules(df, input_variables, output_variable):
     """
@@ -55,7 +52,7 @@ def generate_rules(df, input_variables, output_variable):
         antecedent_key = '-'.join(antecedent)
         # Degree is the multiplied degree of all mf's
         degree = functools.reduce(multiply, list(antecedent.values()) + list(consequent.values()), 1)
-        new_rule = Rule(rule_n, list(antecedent.keys()), "and", list(consequent.keys()))
+        new_rule = Rule(rule_n, list(antecedent.keys()), "AND", list(consequent.keys()))
 
         if antecedent_key in rules:
             current_rule, current_degree = rules[antecedent_key]
@@ -74,15 +71,11 @@ def generate_rules(df, input_variables, output_variable):
     print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
 
     return Rulebase(unpacked_rules)
- 
+
+
 def multiply(x,y):
     return x * y
 
-
-# def rule_degree(rule, input_data, output_data):
-#     n = len(input_data)
-#     degree = 0
-#     for i in range(n):
 
 if __name__ == '__main__':
     data = get_clean_data()

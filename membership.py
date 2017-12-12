@@ -6,7 +6,6 @@ from fuzzy_functions import *
 from rule_generator import *
 
 
-
 def get_variables(df):
     """
     :param df: DataFrame containing all features data
@@ -16,7 +15,7 @@ def get_variables(df):
     y = df[y_column].as_matrix()
     df = df.drop(y_column, 1)
 
-    output = Output('output', (y.min(),y.max()), make_membership_functions(y_column, y, 5))
+    output_var = Output('output', (y.min(), y.max()), make_membership_functions(y_column, y, 5))
     input_vars = []
     for column_name in df:
         feature = df[column_name].as_matrix()
@@ -25,7 +24,7 @@ def get_variables(df):
 
         input_vars.append(x_variable)
 
-    return input_vars, output
+    return input_vars, output_var
 
 
 def make_membership_functions(feature_name, feature_vec, n):
@@ -74,20 +73,20 @@ def determine_mf_name(feature_name, i, mid_mf):
 
     return name
 
-def validate_sys(reasoner, test_data, thresh, N):
-    total = 0
-    for j in range(N):
-        test_x, test_y = x_y_split(test_data)
-        corr = 0
-        for i, x in enumerate(test_x):
-            r = reasoner.inference(x)
-            # if r <= 1:
-            if abs(test_y[i] - r) < thresh:
-                corr += 1
-        total += corr / len(test_data)
-    return total/N *100
 
+def validate_sys(reasoner, test_data, thresh):
+    test_x, test_y = x_y_split(test_data)
+    correct = 0
+    result = np.zeros((len(test_x), 2))
+    for i, x in enumerate(test_x):
+        r = reasoner.inference(x)
+        y = test_y[i]
+        result[i] = [y, r]
+        if r and abs(y - r) < thresh:
+            correct += 1
 
+    print(result, result.shape)
+    return correct / len(test_data) * 100
 
 
 if __name__ == '__main__':
@@ -114,13 +113,13 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(train, columns=columns)
     # print(df.head())
-    inputs , output = get_variables(df)     # get input and output variables and their memebership functions
-    rulebase = generate_rules(df, inputs, output)       # generate rules
-    thinker = Reasoner(rulebase, inputs, output, 200)   # make a Reasoner object to initialize the whole system.
+    inputs, output = get_variables(df)  # get input and output variables and their memebership functions
+    rulebase = generate_rules(df, inputs, output)  # generate rules
+    thinker = Reasoner(rulebase, inputs, output, 200)  # make a Reasoner object to initialize the whole system.
     # datapoint = [100, 1]
     # print(round(thinker.inference(datapoint)))
     # print(df.shape)
-    print(validate_sys(thinker, test, 0.5, 10))
+    print(validate_sys(thinker, test, 0.5))
 
 
     # column = data[:,0]
