@@ -99,6 +99,7 @@ class Rule:
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
+        firing_strength = 0
         if self.operator == 'PROBOR':
             memberships = []
             for i in range(len(inputs)):
@@ -106,7 +107,6 @@ class Rule:
                 memberships.append(res_dict[self.antecedent[i]])
 
             firing_strength = functools.reduce(self.probor, memberships)
-            self.firing_strength = firing_strength
 
         if self.operator == 'AND':
             memberships = []
@@ -116,34 +116,45 @@ class Rule:
                 mf = self.antecedent[i]
                 if mf in res_dict:
                     memberships.append(res_dict[mf])
-            self.firing_strength = min(memberships)
+
+            if len(memberships) > 0:
+                firing_strength = min(memberships)
 
         if self.operator == 'OR':
             memberships = []
-            columns = [
-                '1. #3 (age)',
-                '2. #4 (sex)',
-                '3. #9 (cp)',
-                '4. #10 (trestbps)',
-                '5. #12 (chol)',
-                '6. #16 (fbs)',
-                '7. #19 (restecg)',
-                '8. #32 (thalach)',
-                '9. #38 (exang)',
-                '10. #40 (oldpeak)',
-                '11. #41 (slope)',
-                '12. #44 (ca)',
-                '13. #51 (thal)'
-                # '14. #58 (num)',
-            ]
-            for x in self.antecedent:
-                for i, c in enumerate(columns):
-                    if c in x:
-                        res_dict = inputs[i].calculate_memberships(datapoint[i])
-                        memberships.append(res_dict[x])
-            self.firing_strength = max(memberships)
+            # columns = [
+            #     '1. #3 (age)',
+            #     '2. #4 (sex)',
+            #     '3. #9 (cp)',
+            #     '4. #10 (trestbps)',
+            #     '5. #12 (chol)',
+            #     '6. #16 (fbs)',
+            #     '7. #19 (restecg)',
+            #     '8. #32 (thalach)',
+            #     '9. #38 (exang)',
+            #     '10. #40 (oldpeak)',
+            #     '11. #41 (slope)',
+            #     '12. #44 (ca)',
+            #     '13. #51 (thal)'
+            #     # '14. #58 (num)',
+            # ]
+            #
+            #
+            # for x in self.antecedent:
+            #     for i, c in enumerate(columns):
+            #         if c in x:
+            #             res_dict = inputs[i].calculate_memberships(datapoint[i])
+            #             memberships.append(res_dict[x])
 
-        return self.firing_strength
+            for i in range(len(inputs)):
+                res_dict = inputs[i].calculate_memberships(datapoint[i])
+                mf = self.antecedent[i]
+                if mf in res_dict:
+                    memberships.append(res_dict[mf])
+            firing_strength = max(memberships)
+
+        self.firing_strength = firing_strength
+        return firing_strength
 
     def probor(self, x, y):
         if x == 0:
