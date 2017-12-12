@@ -92,66 +92,40 @@ class Rule:
     vb.: rule1 = Rule(1, ["low", "amazing"], "and", "low")"""
 
     def __init__(self, n, antecedent, operator, consequent):
+        if operator not in ['PROBOR', 'AND', 'OR']:
+            raise RuntimeError('{} operator not implemented'.format(operator))
+
         self.number = n
         self.antecedent = antecedent
-        self.operator = operator.upper()
+        self.operator = operator
         self.consequent = consequent
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
         firing_strength = 0
         if self.operator == 'PROBOR':
-            memberships = []
+            applicable_memberships = []
             for i in range(len(inputs)):
-                res_dict = inputs[i].calculate_memberships(datapoint[i])
-                memberships.append(res_dict[self.antecedent[i]])
+                memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
+                applicable_memberships.append(memberships_for_variable[self.antecedent[i]])
 
-            firing_strength = functools.reduce(self.probor, memberships)
+            firing_strength = functools.reduce(self.probor, applicable_memberships)
 
-        if self.operator == 'AND':
-            memberships = []
+        if self.operator == 'AND' or self.operator == 'OR':
+            applicable_memberships = []
             # For every variable we calculate the memberships
+            # to its rules,
             for i in range(len(inputs)):
-                res_dict = inputs[i].calculate_memberships(datapoint[i])
+                memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
                 mf = self.antecedent[i]
-                if mf in res_dict:
-                    memberships.append(res_dict[mf])
+                if mf in memberships_for_variable:
+                    applicable_memberships.append(memberships_for_variable[mf])
 
-            if len(memberships) > 0:
-                firing_strength = min(memberships)
+            if len(applicable_memberships) > 0 and self.operator == 'AND':
+                firing_strength = min(applicable_memberships)
 
-        if self.operator == 'OR':
-            memberships = []
-            # columns = [
-            #     '1. #3 (age)',
-            #     '2. #4 (sex)',
-            #     '3. #9 (cp)',
-            #     '4. #10 (trestbps)',
-            #     '5. #12 (chol)',
-            #     '6. #16 (fbs)',
-            #     '7. #19 (restecg)',
-            #     '8. #32 (thalach)',
-            #     '9. #38 (exang)',
-            #     '10. #40 (oldpeak)',
-            #     '11. #41 (slope)',
-            #     '12. #44 (ca)',
-            #     '13. #51 (thal)'
-            #     # '14. #58 (num)',
-            # ]
-            #
-            #
-            # for x in self.antecedent:
-            #     for i, c in enumerate(columns):
-            #         if c in x:
-            #             res_dict = inputs[i].calculate_memberships(datapoint[i])
-            #             memberships.append(res_dict[x])
-
-            for i in range(len(inputs)):
-                res_dict = inputs[i].calculate_memberships(datapoint[i])
-                mf = self.antecedent[i]
-                if mf in res_dict:
-                    memberships.append(res_dict[mf])
-            firing_strength = max(memberships)
+            if len(applicable_memberships) > 0 and self.operator == 'OR':
+                firing_strength = max(applicable_memberships)
 
         self.firing_strength = firing_strength
         return firing_strength
