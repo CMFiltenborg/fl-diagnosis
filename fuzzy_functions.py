@@ -113,7 +113,9 @@ class Rule:
         applicable_memberships = []
         for i in range(len(inputs)):
             memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
-            applicable_memberships.append(memberships_for_variable[self.antecedent[i]])
+            mf = self.antecedent[i]
+            if mf in memberships_for_variable:
+                applicable_memberships.append(memberships_for_variable[mf])
 
         if len(applicable_memberships) > 0:
             firing_strength = operator_function(applicable_memberships)
