@@ -1,4 +1,7 @@
+import functools
+import math
 import numpy as np
+from collections import defaultdict, Counter
 from dataset import get_clean_data
 from fuzzy_functions import *
 import pandas as pd
@@ -101,4 +104,3 @@ if __name__ == '__main__':
     # print(data.head())
     # get_variables(data)
     # print(data.shape)
-

@@ -3,6 +3,8 @@ import pandas as pd
 import math
 from dataset import *
 from fuzzy_functions import *
+import matplotlib.pyplot as plt
+
 
 
 def get_variables(df):
@@ -71,3 +73,18 @@ def determine_mf_name(feature_name, i, mid_mf):
         name = '{}: Big {}'.format(feature_name, i + 1)
 
     return name
+
+
+def plot_mfs(variable_list):
+    color = {0:"bo",1:"ro",2:"go",3:"co", 4:"yo", 5:"mo"}
+    l = len(variable_list)
+    _, ax = plt.subplots(l)
+    for i, var in enumerate(variable_list):
+        t1, t2 = var.range
+        x = np.linspace(t1,t2,500)
+        for j, mf in enumerate(var.mfs):
+            y = []
+            for xx in x:
+                y.append(mf.calculate_membership(xx))
+            ax.plot(x,y,color[j])
+    plt.show()
