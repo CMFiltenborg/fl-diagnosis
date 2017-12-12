@@ -43,6 +43,7 @@ def count_occurence(data_column):
 
 
 def validation_split(data, ratio):
+    np.random.seed(42)
     np.random.shuffle(data)
     tmp = int(math.floor(len(data)*ratio))
     # print(tmp)

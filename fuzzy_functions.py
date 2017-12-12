@@ -1,3 +1,4 @@
+import functools
 import math
 import numpy as np
 from collections import defaultdict, Counter
@@ -98,15 +99,24 @@ class Rule:
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
-        if self.operator == 'AND':
-            res = []
+        if self.operator == 'PROBOR':
+            result = []
             for i in range(len(inputs)):
                 res_dict = inputs[i].calculate_memberships(datapoint[i])
-                res.append(res_dict[self.antecedent[i]])
-            self.firing_strength = min(res)
+                result.append(res_dict[self.antecedent[i]])
+
+            firing_strength = functools.reduce(self.probor, result)
+            self.firing_strength = firing_strength
+
+        if self.operator == 'AND':
+            result = []
+            for i in range(len(inputs)):
+                res_dict = inputs[i].calculate_memberships(datapoint[i])
+                result.append(res_dict[self.antecedent[i]])
+            self.firing_strength = min(result)
 
         if self.operator == 'OR':
-            res = []
+            result = []
             columns = [
                 '1. #3 (age)',
                 '2. #4 (sex)',
@@ -127,11 +137,18 @@ class Rule:
                 for i, c in enumerate(columns):
                     if c in x:
                         res_dict = inputs[i].calculate_memberships(datapoint[i])
-                        res.append(res_dict[x])
-            self.firing_strength = max(res)
+                        result.append(res_dict[x])
+            self.firing_strength = max(result)
 
         return self.firing_strength
 
+    def probor(self, x, y):
+        if x == 0:
+            x = 1
+        if y == 0:
+            y = 1
+
+        return x + y - x * y
 
 class Rulebase:
     """The fuzzy rulebase collects all rules for the FLS, can

@@ -1,7 +1,4 @@
-import functools
-import math
 import numpy as np
-from collections import defaultdict, Counter
 from dataset import get_clean_data
 from fuzzy_functions import *
 import pandas as pd
