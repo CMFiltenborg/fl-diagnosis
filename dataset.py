@@ -50,13 +50,7 @@ def validation_split(data, ratio):
 
 
 def x_y_split(data):
-    res = []
-    # for i in range(len(data)):
-    #     if data[i][len(data[0])-1] == '0':
-    #         res.append(False)
-    #     else:
-    #         res.append(True)
-    return data[:,0:len(data[0])-1], data[:,len(data[0])-1]#np.array(res)
+    return data[:,0:len(data[0])-1], data[:,len(data[0])-1]
 
 
 def disc_num_split(data, thres=20):

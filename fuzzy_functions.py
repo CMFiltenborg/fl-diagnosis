@@ -93,38 +93,43 @@ class Rule:
     def __init__(self, n, antecedent, operator, consequent):
         self.number = n
         self.antecedent = antecedent
-        self.operator = operator
+        self.operator = operator.upper()
         self.consequent = consequent
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
-        res = []
-        columns = [
-            '1. #3 (age)',
-            '2. #4 (sex)',
-            '3. #9 (cp)',
-            '4. #10 (trestbps)',
-            '5. #12 (chol)',
-            '6. #16 (fbs)',
-            '7. #19 (restecg)',
-            '8. #32 (thalach)',
-            '9. #38 (exang)',
-            '10. #40 (oldpeak)',
-            '11. #41 (slope)',
-            '12. #44 (ca)',
-            '13. #51 (thal)'
-            # '14. #58 (num)',
-        ]
-        # print()
-        for x in self.antecedent:
-            for i, c in enumerate(columns):
-                if c in x:
-                    res_dict = inputs[i].calculate_memberships(datapoint[i])
-                    res.append(res_dict[x])
-            # res.append(res_dict)
-        print(res)
-        self.firing_strength = max(res)
-        # print(self.firing_strength)
+        if self.operator == 'AND':
+            res = []
+            for i in range(len(inputs)):
+                res_dict = inputs[i].calculate_memberships(datapoint[i])
+                res.append(res_dict[self.antecedent[i]])
+            self.firing_strength = min(res)
+
+        if self.operator == 'OR':
+            res = []
+            columns = [
+                '1. #3 (age)',
+                '2. #4 (sex)',
+                '3. #9 (cp)',
+                '4. #10 (trestbps)',
+                '5. #12 (chol)',
+                '6. #16 (fbs)',
+                '7. #19 (restecg)',
+                '8. #32 (thalach)',
+                '9. #38 (exang)',
+                '10. #40 (oldpeak)',
+                '11. #41 (slope)',
+                '12. #44 (ca)',
+                '13. #51 (thal)'
+                # '14. #58 (num)',
+            ]
+            for x in self.antecedent:
+                for i, c in enumerate(columns):
+                    if c in x:
+                        res_dict = inputs[i].calculate_memberships(datapoint[i])
+                        res.append(res_dict[x])
+            self.firing_strength = max(res)
+
         return self.firing_strength
 
 
@@ -166,16 +171,19 @@ class Reasoner:
         # membership function of the output variable
         # looks like: {"low":0.5, "medium":0.25, "high":0}
         firing_strengths = self.rulebase.calculate_firing_strengths(datapoint, self.inputs)
-        # 2. Aggragate and discretize
+
+        # 2. Aggregate and discretize
         # looks like: [(0.0, 1), (1.2437810945273631, 1), (2.4875621890547261, 1), (3.7313432835820892, 1), ...]
         input_value_pairs = self.aggregate(firing_strengths)
+
         # 3. Defuzzify
         # looks like a scalar
         crisp_output = self.defuzzify(input_value_pairs)
+
         return crisp_output
 
     def aggregate(self, firing_strengths):
-        # First find where the aggrageted area starts and ends
+        # First find where the aggregated area starts and ends
         mfs = []
         for key in firing_strengths:
             mf = self.output.get_mf_by_name(key)
@@ -195,8 +203,11 @@ class Reasoner:
     def defuzzify(self, input_value_pairs):
         s1 = 0
         s2 = 0
-        print(input_value_pairs)
         for (x,fs) in input_value_pairs:
             s1 += x*fs
             s2 += fs
+
+        if s2 == 0 or s1 == 0:
+            return None
+
         return s1/s2
