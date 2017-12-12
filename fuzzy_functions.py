@@ -100,23 +100,26 @@ class Rule:
 
     def calculate_firing_strength(self, datapoint, inputs):
         if self.operator == 'PROBOR':
-            result = []
+            memberships = []
             for i in range(len(inputs)):
                 res_dict = inputs[i].calculate_memberships(datapoint[i])
-                result.append(res_dict[self.antecedent[i]])
+                memberships.append(res_dict[self.antecedent[i]])
 
-            firing_strength = functools.reduce(self.probor, result)
+            firing_strength = functools.reduce(self.probor, memberships)
             self.firing_strength = firing_strength
 
         if self.operator == 'AND':
-            result = []
+            memberships = []
+            # For every variable we calculate the memberships
             for i in range(len(inputs)):
                 res_dict = inputs[i].calculate_memberships(datapoint[i])
-                result.append(res_dict[self.antecedent[i]])
-            self.firing_strength = min(result)
+                mf = self.antecedent[i]
+                if mf in res_dict:
+                    memberships.append(res_dict[mf])
+            self.firing_strength = min(memberships)
 
         if self.operator == 'OR':
-            result = []
+            memberships = []
             columns = [
                 '1. #3 (age)',
                 '2. #4 (sex)',
@@ -137,8 +140,8 @@ class Rule:
                 for i, c in enumerate(columns):
                     if c in x:
                         res_dict = inputs[i].calculate_memberships(datapoint[i])
-                        result.append(res_dict[x])
-            self.firing_strength = max(result)
+                        memberships.append(res_dict[x])
+            self.firing_strength = max(memberships)
 
         return self.firing_strength
 
