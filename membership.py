@@ -5,22 +5,30 @@ from dataset import *
 from fuzzy_functions import *
 import matplotlib.pyplot as plt
 
+y_column = '14. #58 (num)'
 
-
-def get_variables(df):
+def get_variables(df, mf_ns={}):
     """
     :param df: DataFrame containing all features data
     :return: (Input[], Output): tuple of input and output variables
     """
-    y_column = '14. #58 (num)'
+
+    y_n = 5
+    if y_column in mf_ns:
+        y_n = mf_ns[y_column]
+
     y = df[y_column].as_matrix()
     df = df.drop(y_column, 1)
 
-    output_var = Output('output', (y.min(), y.max()), make_membership_functions(y_column, y, 5))
+    output_var = Output('output', (y.min(), y.max()), make_membership_functions(y_column, y, y_n))
     input_vars = []
+    n = 5
     for column_name in df:
+        if column_name in mf_ns:
+            n = mf_ns[column_name]
+
         feature = df[column_name].as_matrix()
-        membership_functions = make_membership_functions(column_name, feature, 5)
+        membership_functions = make_membership_functions(column_name, feature, n)
         x_variable = Input(column_name, (feature.min(), feature.max()), membership_functions)
 
         input_vars.append(x_variable)
@@ -30,6 +38,7 @@ def get_variables(df):
 
 def make_membership_functions(feature_name, feature_vec, n):
     """
+    :param feature_name: Name of the particular feature
     :param feature_vec: vector of values for one feature
     :param n: number of memberships for the feature
     :return TriangularMF[]: array of membership functions
@@ -45,6 +54,7 @@ def make_membership_functions(feature_name, feature_vec, n):
     top = min_range
     end = min_range + increment
 
+    # if feature_name != y_column:
     membership_functions = []
     # Create n membership functions
     for i in range(n):
@@ -61,6 +71,23 @@ def make_membership_functions(feature_name, feature_vec, n):
             end += increment
 
     return membership_functions
+
+
+    # increment = (max_range - min_range) / n
+    # start = min_range
+    # end = min_range + increment
+    # membership_functions = []
+    # # Create n membership functions
+    # for i in range(n):
+    #     name = '{}: {}'.format(feature_name, i)
+    #     mf = TrapezoidalMF(name, start, start, end, end)
+    #     membership_functions.append(mf)
+    #
+    #     # Update MF positioning
+    #     start += increment
+    #     end += increment
+    #
+    # return membership_functions
 
 
 def determine_mf_name(feature_name, i, mid_mf):

@@ -6,11 +6,12 @@ from dataset import get_clean_data
 from fuzzy_functions import *
 import pandas as pd
 from membership import get_variables
+import collections
 
-
-def generate_rules(df, input_variables, output_variable):
+def generate_rules(df, input_variables, output_variable, operator="AND"):
     """
         Generates a rule for each input and output pair
+        :param operator: Operator to use for every rule.
         :param df:
         :type df: pd.DataFrame
         :param input_variables: All input variables
@@ -27,8 +28,8 @@ def generate_rules(df, input_variables, output_variable):
     rule_n = 1
 
     for i in range(data.shape[0]):
-        antecedent = {}
-        consequent = {}
+        antecedent = collections.OrderedDict()
+        consequent = collections.OrderedDict()
 
         for j in range(columns_cnt):
             x = data[i, j]
@@ -52,7 +53,7 @@ def generate_rules(df, input_variables, output_variable):
         antecedent_key = '-'.join(antecedent)
         # Degree is the multiplied degree of all mf's
         degree = functools.reduce(multiply, list(antecedent.values()) + list(consequent.values()), 1)
-        new_rule = Rule(rule_n, list(antecedent.keys()), "AND", list(consequent.keys()))
+        new_rule = Rule(rule_n, list(antecedent.keys()), operator, list(consequent.keys()))
 
         if antecedent_key in rules:
             current_rule, current_degree = rules[antecedent_key]
@@ -68,7 +69,7 @@ def generate_rules(df, input_variables, output_variable):
     for i in rules:
         unpacked_rules.append(rules[i][0])
 
-    print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
+    # print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
 
     return Rulebase(unpacked_rules)
 

@@ -53,6 +53,19 @@ class TrapezoidalMF:
             return 1
 
 
+class SingletonMF:
+    """Trapezoidal fuzzy logic membership function class."""
+    def __init__(self, name, position):
+        self.name = name
+        self.position = position
+
+    def calculate_membership(self, x):
+        if x == self.position:
+            return 1
+
+        return 0
+
+
 class Variable:
     def __init__(self, name, range, mfs):
         self.name = name
@@ -112,9 +125,10 @@ class Rule:
 
         applicable_memberships = []
         for i in range(len(inputs)):
-            memberships_for_variable = inputs[i].calculate_memberships(datapoint[i])
+            input = inputs[i]
+            memberships_for_variable = input.calculate_memberships(datapoint[i])
             mf = self.antecedent[i]
-            if mf in memberships_for_variable:
+            if mf != '' and mf in memberships_for_variable:
                 applicable_memberships.append(memberships_for_variable[mf])
 
         if len(applicable_memberships) > 0:
@@ -208,4 +222,4 @@ class Reasoner:
         if s2 == 0 or s1 == 0:
             return None
 
-        return s1/s2
+        return s1 / s2
