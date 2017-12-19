@@ -5,6 +5,13 @@ from collections import defaultdict, Counter
 
 
 class TriangularMF:
+    """
+    Triangular fuzzy logic membership function class.
+    :param name: name of MF
+    :param start: start of MF
+    :param top: top of MF
+    :param end: end of MF
+    """
     def __init__(self, name, start, top, end):
         self.name = name
         self.start = start
@@ -12,6 +19,10 @@ class TriangularMF:
         self.end = end
 
     def calculate_membership(self, x):
+        """
+        Calculate membership degree for a single point.
+        :param x: given point to calculate
+        """
         start = self.start
         top = self.top
         end = self.end
@@ -27,8 +38,13 @@ class TriangularMF:
 
 
 class TrapezoidalMF:
-    """Trapezoidal fuzzy logic membership function class."""
-
+    """Trapezoidal fuzzy logic membership function class.
+    :param name: name of MF
+    :param start: start of MF
+    :param left_top: left top of MF
+    :param right_top: right top of MF
+    :param end: end of MF
+    """
     def __init__(self, name, start, left_top, right_top, end):
         self.name = name
         self.start = start
@@ -37,6 +53,10 @@ class TrapezoidalMF:
         self.end = end
 
     def calculate_membership(self, x):
+        """
+        Calculate membership degree for a single point.
+        :param x: given point to calculate
+        """
         if x <= self.start and self.start != self.left_top:
             return 0
         if x <= self.start and self.start == self.left_top:
@@ -54,7 +74,10 @@ class TrapezoidalMF:
 
 
 class SingletonMF:
-    """Trapezoidal fuzzy logic membership function class."""
+    """Singletom fuzzy logic membership function class.
+    :param name: name of MF
+    :param: position of MF
+    """
     def __init__(self, name, position):
         self.name = name
         self.position = position
@@ -67,12 +90,21 @@ class SingletonMF:
 
 
 class Variable:
+    """Superclass for the input and output class.
+    :param name: name of the Variable
+    :param range: range of the variable
+    :param mfs: list of MF objects
+    """
     def __init__(self, name, range, mfs):
         self.name = name
         self.range = range
         self.mfs = mfs
 
     def calculate_memberships(self, x):
+        """
+        Calculate membership degree for a single point.
+        :param x: given point to calculate
+        """
         return {
             mf.name: mf.calculate_membership(x)
             for mf in self.mfs
@@ -88,12 +120,24 @@ class Variable:
 
 
 class Input(Variable):
+    """
+    Input variable class.
+    :param name: name of the Input variable
+    :param range: range of the variable
+    :param mfs: list of MF objects
+    """
     def __init__(self, name, range, mfs):
         super(Input, self).__init__(name, range, mfs)
         self.type = "input"
 
 
 class Output(Variable):
+    """
+    Output variable class.
+    :param name: name of the Output variable
+    :param range: range of the variable
+    :param mfs: list of MF objects
+    """
     def __init__(self, name, range, mfs):
         super(Output, self).__init__(name, range, mfs)
         self.type = "output"
@@ -102,7 +146,12 @@ class Output(Variable):
 class Rule:
     """Fuzzy rule class, initialized with an antecedent (list of strings),
     operator (string) and consequent (string).
-    vb.: rule1 = Rule(1, ["low", "amazing"], "and", "low")"""
+    vb.: rule1 = Rule(1, ["low", "amazing"], "and", "low")
+    :param n: number of the rule
+    :param antecedent: antecedent part of the rule
+    :param operator: the operator of the rule
+    :param consequent: consequent part of the rule
+    """
 
     def __init__(self, n, antecedent, operator, consequent):
         if operator not in ['PROBOR', 'AND', 'OR']:
@@ -115,6 +164,11 @@ class Rule:
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
+    """
+    Calculate the firing strength of the given datapoint for this rule.
+    :param datapoint: given datapoint to calculate firing strength
+    :param inputs: list of Input objects
+    """
         firing_strength = 0
         if self.operator == 'PROBOR':
             operator_function = lambda x: functools.reduce(self.probor, x) if len(x) > 1 else 0
@@ -146,8 +200,11 @@ class Rule:
         return x + y - x * y
 
 class Rulebase:
-    """The fuzzy rulebase collects all rules for the FLS, can
-    calculate the firing strengths of its rules."""
+    """
+    The fuzzy rulebase collects all rules for the FLS, can
+    calculate the firing strengths of its rules.
+    :param rules: list of Rule objects
+    """
 
     def __init__(self, rules):
         self.rules = rules
@@ -156,6 +213,12 @@ class Rulebase:
         return '\n'.join(['Rule {}: [{}] {} {}'.format(r.number, ', '.join(r.antecedent), r.operator, r.consequent) for r in self.rules])
 
     def calculate_firing_strengths(self, datapoint, inputs):
+    """
+    Calculate firing strengths for all rules in rulebase for given datapoint.
+    :param datapoint: given datapoint to calculate firing strength
+    :param inputs: list of Input objects
+    """
+
         result = Counter()
         for i, rule in enumerate(self.rules):
             fs = rule.calculate_firing_strength(datapoint, inputs)
@@ -165,13 +228,14 @@ class Rulebase:
         return result
 
 
-
-''' vb. call:
-thinker = Reasoner(rulebase, inputs, output, 201)
-datapoint = [100, 1]
-print(round(thinker.inference(datapoint)))
-'''
 class Reasoner:
+    """
+    Reasoner class, putting all fuzzy functions together.
+    :param rulebase: rulebase object
+    :param inputs: list of Input objects
+    :param output: Output object
+    :param n_points: number of points
+    """
     def __init__(self, rulebase, inputs, output, n_points):
         self.rulebase = rulebase
         self.inputs = inputs
@@ -195,7 +259,11 @@ class Reasoner:
         return crisp_output
 
     def aggregate(self, firing_strengths):
-        # First find where the aggregated area starts and ends
+    """
+    Function to aggregate the calculated membership degrees to fuzzy outputs
+    :param firing_strengths: calculated firing_strengths
+    """
+
         mfs = []
         for key in firing_strengths:
             mf = self.output.get_mf_by_name(key)
@@ -213,6 +281,11 @@ class Reasoner:
         return res
 
     def defuzzify(self, input_value_pairs):
+    """
+    Function used to defuzzify the calculated fuzzy output.
+    :param input_value_pairs: list of fuzzy outputs
+    """
+
         s1 = 0
         s2 = 0
         for (x,fs) in input_value_pairs:

@@ -43,7 +43,6 @@ def make_membership_functions(feature_name, feature_vec, n):
     :param n: number of memberships for the feature
     :return TriangularMF[]: array of membership functions
     """
-    # r = [min(feature_vec), max(feature_vec)]
     min_range = feature_vec.min()
     max_range = feature_vec.max()
 
@@ -54,7 +53,6 @@ def make_membership_functions(feature_name, feature_vec, n):
     top = min_range
     end = min_range + increment
 
-    # if feature_name != y_column:
     membership_functions = []
     # Create n membership functions
     for i in range(n):
@@ -73,24 +71,13 @@ def make_membership_functions(feature_name, feature_vec, n):
     return membership_functions
 
 
-    # increment = (max_range - min_range) / n
-    # start = min_range
-    # end = min_range + increment
-    # membership_functions = []
-    # # Create n membership functions
-    # for i in range(n):
-    #     name = '{}: {}'.format(feature_name, i)
-    #     mf = TrapezoidalMF(name, start, start, end, end)
-    #     membership_functions.append(mf)
-    #
-    #     # Update MF positioning
-    #     start += increment
-    #     end += increment
-    #
-    # return membership_functions
-
-
 def determine_mf_name(feature_name, i, mid_mf):
+    """
+    :param feature_name: Name of the particular feature
+    :param i: feature number
+    :param mid_mf: middle of MF
+    :return name: name of MF
+    """
     name = ''
     if i + 1 < mid_mf:
         name = '{}: Small {}'.format(feature_name, i + 1)
@@ -103,6 +90,10 @@ def determine_mf_name(feature_name, i, mid_mf):
 
 
 def plot_mfs(variable_list):
+    """
+    plot MFs for variables
+    :param variable_list: list of variable objects
+    """
     color = {0:"bo",1:"ro",2:"go",3:"co", 4:"yo", 5:"mo"}
     l = len(variable_list)
     _, ax = plt.subplots(l)
@@ -113,5 +104,5 @@ def plot_mfs(variable_list):
             y = []
             for xx in x:
                 y.append(mf.calculate_membership(xx))
-            ax.plot(x,y,color[j])
+            ax[i].plot(x,y,color[j])
     plt.show()
