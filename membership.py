@@ -10,9 +10,10 @@ y_column = '14. #58 (num)'
 def get_variables(df, mf_ns={}):
     """
     :param df: DataFrame containing all features data
+    :param mf_ns: A dictionary that contains how many membership functions should be created
+    for each fuzzy variable. If a key is not set the default of 5 is used.
     :return: (Input[], Output): tuple of input and output variables
     """
-
     y_n = 5
     if y_column in mf_ns:
         y_n = mf_ns[y_column]
@@ -22,8 +23,8 @@ def get_variables(df, mf_ns={}):
 
     output_var = Output('output', (y.min(), y.max()), make_membership_functions(y_column, y, y_n))
     input_vars = []
-    n = 5
     for column_name in df:
+        n = 5
         if column_name in mf_ns:
             n = mf_ns[column_name]
 
