@@ -8,6 +8,7 @@ import pandas as pd
 from membership import get_variables
 import collections
 
+
 def generate_rules(df, input_variables, output_variable, operator="AND"):
     """
         Generates a rule for each input and output pair
@@ -74,7 +75,7 @@ def generate_rules(df, input_variables, output_variable, operator="AND"):
     return Rulebase(unpacked_rules)
 
 
-def multiply(x,y):
+def multiply(x, y):
     return x * y
 
 
@@ -101,7 +102,7 @@ if __name__ == '__main__':
     input_variables, output_var = get_variables(data)
     rulebase = generate_rules(data, input_variables, output_var)
 
-    #print(rulebase)
+    # print(rulebase)
     # print(data.head())
     # get_variables(data)
     # print(data.shape)

@@ -10,9 +10,10 @@ y_column = '14. #58 (num)'
 def get_variables(df, mf_ns={}):
     """
     :param df: DataFrame containing all features data
+    :param mf_ns: A dictionary that contains how many membership functions should be created
+    for each fuzzy variable. If a key is not set the default of 5 is used.
     :return: (Input[], Output): tuple of input and output variables
     """
-
     y_n = 5
     if y_column in mf_ns:
         y_n = mf_ns[y_column]
@@ -22,8 +23,8 @@ def get_variables(df, mf_ns={}):
 
     output_var = Output('output', (y.min(), y.max()), make_membership_functions(y_column, y, y_n))
     input_vars = []
-    n = 5
     for column_name in df:
+        n = 5
         if column_name in mf_ns:
             n = mf_ns[column_name]
 
@@ -71,23 +72,6 @@ def make_membership_functions(feature_name, feature_vec, n):
             end += increment
 
     return membership_functions
-
-
-    # increment = (max_range - min_range) / n
-    # start = min_range
-    # end = min_range + increment
-    # membership_functions = []
-    # # Create n membership functions
-    # for i in range(n):
-    #     name = '{}: {}'.format(feature_name, i)
-    #     mf = TrapezoidalMF(name, start, start, end, end)
-    #     membership_functions.append(mf)
-    #
-    #     # Update MF positioning
-    #     start += increment
-    #     end += increment
-    #
-    # return membership_functions
 
 
 def determine_mf_name(feature_name, i, mid_mf):
