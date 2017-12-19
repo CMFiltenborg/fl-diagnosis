@@ -164,11 +164,11 @@ class Rule:
         self.firing_strength = 0
 
     def calculate_firing_strength(self, datapoint, inputs):
-    """
-    Calculate the firing strength of the given datapoint for this rule.
-    :param datapoint: given datapoint to calculate firing strength
-    :param inputs: list of Input objects
-    """
+        """
+        Calculate the firing strength of the given datapoint for this rule.
+        :param datapoint: given datapoint to calculate firing strength
+        :param inputs: list of Input objects
+        """
         firing_strength = 0
         if self.operator == 'PROBOR':
             operator_function = lambda x: functools.reduce(self.probor, x) if len(x) > 1 else 0
@@ -213,11 +213,11 @@ class Rulebase:
         return '\n'.join(['Rule {}: [{}] {} {}'.format(r.number, ', '.join(r.antecedent), r.operator, r.consequent) for r in self.rules])
 
     def calculate_firing_strengths(self, datapoint, inputs):
-    """
-    Calculate firing strengths for all rules in rulebase for given datapoint.
-    :param datapoint: given datapoint to calculate firing strength
-    :param inputs: list of Input objects
-    """
+        """
+        Calculate firing strengths for all rules in rulebase for given datapoint.
+        :param datapoint: given datapoint to calculate firing strength
+        :param inputs: list of Input objects
+        """
 
         result = Counter()
         for i, rule in enumerate(self.rules):
@@ -259,10 +259,10 @@ class Reasoner:
         return crisp_output
 
     def aggregate(self, firing_strengths):
-    """
-    Function to aggregate the calculated membership degrees to fuzzy outputs
-    :param firing_strengths: calculated firing_strengths
-    """
+        """
+        Function to aggregate the calculated membership degrees to fuzzy outputs
+        :param firing_strengths: calculated firing_strengths
+        """
 
         mfs = []
         for key in firing_strengths:
@@ -281,10 +281,10 @@ class Reasoner:
         return res
 
     def defuzzify(self, input_value_pairs):
-    """
-    Function used to defuzzify the calculated fuzzy output.
-    :param input_value_pairs: list of fuzzy outputs
-    """
+        """
+        Function used to defuzzify the calculated fuzzy output.
+        :param input_value_pairs: list of fuzzy outputs
+        """
 
         s1 = 0
         s2 = 0
