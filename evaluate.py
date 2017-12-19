@@ -48,7 +48,8 @@ def validate_sys_cv(df, mf_ns):
     """
     test_n = 0
     k_folds = 5
-    print('Total tests: {}'.format(len(columns) * k_folds))
+    print('Total evals: {}'.format(len(columns) * k_folds))
+    print('Total datapoints: {}'.format(df.shape[0]))
     k_fold_scores = np.zeros((k_folds))
     confusion_matrix_total = np.zeros((5, 5))
     non_classified_total = 0
@@ -104,6 +105,7 @@ def validate_sys_cv(df, mf_ns):
     print('Total confusion matrix: \n', confusion_matrix_total)
     print('K fold scores: \n', k_fold_scores)
     print('Total non classified: {}'.format(non_classified_total))
+    print('Average score: {}'.format(np.average(k_fold_scores)))
 
 
 def grid_search_antecedents(test_data, thresh):
@@ -233,7 +235,7 @@ def grid_search_n_mf(df):
                 k_fold_scores[k] = percentage_correct
                 k += 1
 
-            min = np.min(k_fold_scores)
+            min = optimization_function(k_fold_scores)
             if min > best_score:
                 print('Found a better score: {} > {}'.format(min, best_score))
                 old_n = saved_ns[column] if column in saved_ns else 5
@@ -338,7 +340,7 @@ def grid_search_inputs(df):
             k_fold_scores[k] = percentage_correct
             k += 1
 
-        min = np.min(k_fold_scores)
+        min = optimization_function(k_fold_scores)
         if min > best_score:
             print('Found a better score: {} > {}'.format(min, best_score))
             best_score = min
@@ -389,18 +391,22 @@ if __name__ == '__main__':
     thresh = 0.5
 
     df = pd.DataFrame(data, columns=columns)
+    optimization_function = np.average
 
-    grid_search_inputs(df)
+    # grid_search_inputs(df)
     # inputs, output = get_variables(df, mf_ns)  # get input and output variables and their memebership functions
     # rulebase = grid_search_antecedents(test, 0.5)
     # plot_mfs([output])
     # rulebase = generate_rules(df, inputs, output)  # generate rules
-
-    df = df[['1. #3 (age)', '2. #4 (sex)', '3. #9 (cp)', '14. #58 (num)']]
+    # best_columns = ['1. #3 (age)', '2. #4 (sex)', '3. #9 (cp)', '4. #10 (trestbps)', '5. #12 (chol)', '12. #44 (ca)', '14. #58 (num)']
+    best_columns = ['1. #3 (age)', '2. #4 (sex)', '3. #9 (cp)', '14. #58 (num)']
+    df = df[best_columns]
     # inputs, output = grid_search_n_mf(df)
     # mf_ns = {'1. #3 (age)': 7}
-    mf_ns = {'1. #3 (age)': 15, '3. #9 (cp)': 15, '14. #58 (num)': 11}
-    # mf_ns = {}
+    # mf_ns = {'1. #3 (age)': 15, '3. #9 (cp)': 15, '14. #58 (num)': 11}
+    # mf_ns = {'1. #3 (age)': 3, '2. #4 (sex)': 7, '12. #44 (ca)': 3, '14. #58 (num)': 7}
+    # mf_ns = {'1. #3 (age)': 3}
+    mf_ns = {}
     validate_sys_cv(df, mf_ns)
 
     # with open('rulebase.pkl', 'rb') as input:
