@@ -70,7 +70,7 @@ def generate_rules(df, input_variables, output_variable, operator="AND"):
     for i in rules:
         unpacked_rules.append(rules[i][0])
 
-    # print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
+    print('Total possible rules {}, had {} conflicting rules, resulted in total of {} rules'.format( rule_n, rule_n - len(unpacked_rules), len(unpacked_rules)))
 
     return Rulebase(unpacked_rules)
 
